@@ -10,7 +10,13 @@ public class Token {
 	String text;
 	int startOffset;
 	int endOffset;
-	int length;
+	int numChars;
+	
+	
+	public int getNumChars(){
+		return this.text.length();
+	}
+	
 	/**
 	 * @param args
 	 */
