@@ -11,6 +11,10 @@ public class Document {
 	List<Timex3> timex3s;
 	List<Tlink> tlink;
 	
+	public Document(){
+		
+	}
+	
 	public int getNumSents(){
 		return this.sentences.size();
 	}

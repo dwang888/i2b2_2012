@@ -1,28 +1,25 @@
 package wd.i2b2.utilities;
 
-public class Timex3 {
+public class Sectime {
 	
 	String id;
 	int start;
 	int end;
 	String text;
 	String type;
-	String val;
-	String mod;
+	String dvalue;
 	
-	public Timex3() {
-	}
+	public Sectime(){}	
 	
-	public Timex3(String id, int start, int end, String text, String type,
-			String val, String mod) {
+	public Sectime(String id, int start, int end, String text, String type, String dvalue) {
 		this.id = id;
 		this.start = start;
 		this.end = end;
 		this.text = text;
 		this.type = type;
-		this.val = val;
-		this.mod = mod;
+		this.dvalue = dvalue;
 	}
+
 
 
 	public String getId() {
@@ -65,20 +62,12 @@ public class Timex3 {
 		this.type = type;
 	}
 
-	public String getVal() {
-		return val;
+	public String getDvalue() {
+		return dvalue;
 	}
 
-	public void setVal(String val) {
-		this.val = val;
-	}
-
-	public String getMod() {
-		return mod;
-	}
-
-	public void setMod(String mod) {
-		this.mod = mod;
+	public void setDvalue(String dvalue) {
+		this.dvalue = dvalue;
 	}
 
 	/**
