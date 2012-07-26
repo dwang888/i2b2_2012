@@ -2,5 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="D:/NLP_TOOLS/ML/mallet/mallet-2.0.7/dist/mallet.jar"/>
+	<classpathentry kind="lib" path="D:/NLP_TOOLS/ML/mallet/mallet-2.0.7/dist/mallet-deps.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -29,7 +29,7 @@ import wd.i2b2.utilities.Tlink;
 public class I2b2XmlReader {
 	
 	String path;
-	Document doc;
+	Document doc;//this is a xml doc, not i2b2 Document
 	String text = null;
 	List<Event> events = new ArrayList<Event>();
 	List<Tlink> tlinks = new ArrayList<Tlink>();
@@ -48,14 +48,19 @@ public class I2b2XmlReader {
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 		this.doc = dBuilder.parse(xmlFile);
 		this.doc.getDocumentElement().normalize();
+		this.readTexts();
+		this.readEvents();
+		this.readSectimes();
+		this.readTimex3();
+		this.readTlinks();
 	}
 	
-	public String readText() throws Exception, IOException, Exception{
+	public String readTexts() throws Exception, IOException, Exception{
 		if(this.doc == null){
 			this.loadI2b2xmlFile(this.path);
 		}
 		NodeList nList = this.doc.getElementsByTagName("TEXT");
-		String text = null;
+		String text = "";
 		
 		for (int i = 0; i < nList.getLength(); i++){
 			Node nNode = nList.item(i);
@@ -131,12 +136,70 @@ public class I2b2XmlReader {
 		}
 	}
 	
-	public void readSectime(){
+	public void readSectimes(){
+		NodeList nList = doc.getElementsByTagName("SECTIME");
+		String attrName;
+		String attrValue;
 		
+		for (int i = 0; i < nList.getLength(); i++){
+			Node nNode = nList.item(i);
+			Sectime sectime = new Sectime();
+			
+			for(int j = 0; j < nNode.getAttributes().getLength(); j++){
+				//set attributes to event
+				attrName = nNode.getAttributes().item(j).getNodeName();
+				attrValue = nNode.getAttributes().item(j).getNodeValue();
+				if(attrName.equalsIgnoreCase("id")){
+					sectime.setId(attrValue);
+				}else if(attrName.equalsIgnoreCase("start")){
+					sectime.setStart(Integer.parseInt(attrValue));
+				}else if(attrName.equalsIgnoreCase("end")){
+					sectime.setEnd(Integer.parseInt(attrValue));
+				}else if(attrName.equalsIgnoreCase("text")){
+					sectime.setText(attrValue);
+				}else if(attrName.equalsIgnoreCase("type")){
+					sectime.setType(attrValue);
+				}else if(attrName.equalsIgnoreCase("dvalue")){
+					sectime.setDvalue(attrValue);
+				}
+			}			
+			this.sectimes.add(sectime);
+			
+		}
 	}
 	
 	public void readTimex3(){
+		NodeList nList = doc.getElementsByTagName("TIMEX3");
+		String attrName;
+		String attrValue;
 		
+		for (int i = 0; i < nList.getLength(); i++){
+			Node nNode = nList.item(i);
+			Timex3 timex3 = new Timex3();
+			
+			for(int j = 0; j < nNode.getAttributes().getLength(); j++){
+				//set attributes to event
+				attrName = nNode.getAttributes().item(j).getNodeName();
+				attrValue = nNode.getAttributes().item(j).getNodeValue();
+				if(attrName.equalsIgnoreCase("id")){
+					timex3.setId(attrValue);
+				}else if(attrName.equalsIgnoreCase("start")){
+					timex3.setStart(Integer.parseInt(attrValue));
+				}else if(attrName.equalsIgnoreCase("end")){
+					timex3.setEnd(Integer.parseInt(attrValue));
+				}else if(attrName.equalsIgnoreCase("text")){
+					timex3.setText(attrValue);
+				}else if(attrName.equalsIgnoreCase("type")){
+					timex3.setType(attrValue);
+				}else if(attrName.equalsIgnoreCase("val")){
+					timex3.setVal(attrValue);
+				}else if(attrName.equalsIgnoreCase("mod")){
+					timex3.setMod(attrValue);
+				}
+			}			
+			this.timex3s.add(timex3);
+			
+		}
 	}
 	
 	
@@ -206,8 +269,8 @@ public class I2b2XmlReader {
 		// TODO Auto-generated method stub
 		String path = args[0];
 		I2b2XmlReader reader = new I2b2XmlReader(path);
-		reader.readTlinks();
-		System.out.println(reader.getTlinks().size());
+		reader.readSectimes();
+//		System.out.println(reader.getSectimes().size());
 	}
 
 }
