@@ -28,12 +28,18 @@ import cc.mallet.types.InstanceList;
 
 public class MalletTest {
 //	List<Instance> instances = new ArrayList<Instance>();
-	InstanceList instances = this.buildPipe();
+//	InstanceList instances = this.buildPipe();
+	InstanceList insTrain;
+	InstanceList insTest;
+	Pipe finalPipe;
 	
-	public InstanceList buildPipe(){
+	public MalletTest(){
+		this.buildPipe();
+	}
+	
+	public Pipe buildPipe(){
 		InstanceList instances = new InstanceList();
 		ArrayList pipeList = new ArrayList();
-		pipeList = new ArrayList();
 		
 		pipeList.add(new Target2Label());
 //		pipeList.add(new SaveDataInSource());
@@ -44,11 +50,16 @@ public class MalletTest {
 		pipeList.add(new TokenSequence2FeatureSequence());        
 		pipeList.add(new FeatureSequence2FeatureVector());
 //		pipeList.add(new PrintInputAndTarget());
-        instances = new InstanceList(new SerialPipes(pipeList));
-        return instances;
+		Pipe finalPipe = new SerialPipes(pipeList);
+		this.finalPipe = finalPipe;
+		this.insTrain = new InstanceList(finalPipe);
+		this.insTest = new InstanceList(finalPipe);
+		return finalPipe;
+//        instances = new InstanceList(finalPipe);
+//        return instances;
 	}
 	
-	public Instance token2Instance(String feature, String label, String name, String src, InstanceList instances){
+	public Instance token2Instance(String feature, String label, String name, String src, InstanceList ins){
 //		for(String key : tk.features.keySet()){
 //			feature += key + "=" + tk.features.get(key) + " ";
 //		}
@@ -59,8 +70,8 @@ public class MalletTest {
 //		System.out.println(in.getTarget());
 //		System.out.println(in.getName().toString());
 		//return in;
-		instances.addThruPipe(in);
-		return instances.get(instances.size() - 1);
+		ins.addThruPipe(in);
+		return ins.get(ins.size() - 1);
 	}
 	
 	public LinkedList<DataSample> createSampleList(String fileName) throws IOException{
@@ -92,8 +103,8 @@ public class MalletTest {
 	public void process(String trainPath, String testPath) throws IOException{
 		List<DataSample> trainList = this.createSampleList(trainPath);
 		List<DataSample> testList = this.createSampleList(testPath);
-		InstanceList instancesTrain = this.buildPipe();
-		InstanceList instancesTest = this.buildPipe();
+//		InstanceList instancesTrain = this.buildPipe();
+//		InstanceList instancesTest = this.buildPipe();
 		
 		
 		for(DataSample ds : trainList){
@@ -105,7 +116,7 @@ public class MalletTest {
 			}			
 //			System.out.println(strTmp);
 //			System.out.println(ds.getLabel());
-			token2Instance(strTmp, ds.getLabel(), ds.getName(), "NONE", instancesTrain);
+			token2Instance(strTmp, ds.getLabel(), ds.getName(), "NONE", this.insTrain);
 		}
 		
 		for(DataSample ds : testList){
@@ -117,16 +128,21 @@ public class MalletTest {
 			}			
 //			System.out.println(strTmp);
 //			System.out.println(ds.getLabel());
-			token2Instance(strTmp, ds.getLabel(), ds.getName(), "NONE", instancesTest);
+			token2Instance(strTmp, ds.getLabel(), ds.getName(), "NONE", this.insTest);
 		}
 		
+		System.out.println(this.insTrain.size());
+		
 		ClassifierTrainer trainer = new MaxEntTrainer();
-		Classifier classifier = trainer.train(instancesTrain);
-		System.out.println(classifier.getF1(instancesTest, 1));
-//		Trial testTrial = new Trial(classifier, instancesTest);
+		Classifier classifier = trainer.train(insTrain);
+//		System.out.println(classifier.getF1(insTest, 1));
+		Trial testTrial = new Trial(classifier, insTrain);
 //		classifier.print();
 //		printTrialClassification(testTrial);
-//		System.out.println(testTrial.getAccuracy());
+		System.out.println(testTrial.getAccuracy());
+//		for(int i = 0; i < insTrain.size(); i++){
+//			System.out.println(insTrain.get(i).getTarget());
+//		}
 	}
 	
 	
