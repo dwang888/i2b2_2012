@@ -48,29 +48,65 @@ public class Document {
 		int tkID = 0;
 		int sentID = 0;
 		for(int i = 1; i < this.getText().length(); i++){
+			
 			if(this.getText().charAt(i) == ' '){
-//				System.out.println("%");				
-				this.getSentences().get(sentID).getTokens().get(tkID).setEndOffset(i);
-				this.getSentences().get(sentID).getTokens().get(tkID).setStartOffset(startOffset);
-				startOffset = i + 1;
-				tkID++;				
+				if(i >= startOffset){
+					this.getSentences().get(sentID).getTokens().get(tkID).setEndOffset(i);
+					this.getSentences().get(sentID).getTokens().get(tkID).setStartOffset(startOffset);
+				}
+//				System.out.println(startOffset + "--" + i + "--" + this.getSentences().get(sentID).getTokens().get(tkID).getText());
+				startOffset = i;
+				while(startOffset < this.getText().length()){
+					startOffset++;
+					if(this.getText().charAt(startOffset) != ' ' && this.getText().charAt(startOffset) != '\n'){
+//						if(this.getText().charAt(startOffset) == '\n'){
+//							break;
+//						}
+						if(this.getText().charAt(i-1) != ' '){
+							tkID++;
+						}						
+						break;
+					}
+				}							
 			}else if(this.getText().charAt(i) == '\n'){
-				System.out.println(this.getSentences().get(sentID).getTokens().size() + "=== " +tkID);
-				this.getSentences().get(sentID).getTokens().get(tkID).setEndOffset(i);
-				this.getSentences().get(sentID).getTokens().get(tkID).setStartOffset(startOffset);
-				startOffset = i + 1;				
-				tkID = 0;
-				sentID++;				
-//					System.out.println(this.getText().charAt(i));		
+//				System.out.println(this.getSentences().get(sentID).getTokens().size() + "=== " +tkID);
+//				this.getSentences().get(sentID).getTokens();
+				if(i >= startOffset){
+					this.getSentences().get(sentID).getTokens().get(tkID).setEndOffset(i);
+					this.getSentences().get(sentID).getTokens().get(tkID).setStartOffset(startOffset);
+				}
+				startOffset = i;
+				while(startOffset + 1 < this.getText().length()){
+					startOffset++;
+					if(this.getText().charAt(startOffset) != ' ' && this.getText().charAt(startOffset) != '\n'){
+						tkID = 0;
+						break;
+					}
+					
+				}
+				
+				sentID++;	
 			}
 			
+			
+			
 			if(startOffset >= this.getText().length() 
-					|| sentID >= this.getSentences().size() 
-					|| tkID >= this.getSentences().get(sentID).getTokens().size()){
+					|| sentID >= this.getSentences().size()){
+//				System.out.println("startOffset:\t" + startOffset);
+//				System.out.println("sentID:\t" + sentID);
+//				System.out.println("this.getSentences().size():\t" + this.getSentences().size());
+//				System.out.println("tkID:\t" + tkID);
+//				System.out.println("this.getSentences().get(sentID).getTokens().size():\t" + this.getSentences().get(sentID).getTokens().size());
+								
 				break;
 			}
+			if(tkID >= this.getSentences().get(sentID).getNumTokens()){
+				//deal with some continuous space
+				tkID = 0;
+				
+			}
 		}
-		
+//		System.out.println("text length:\t" + this.getText().length());
 	}
 	
 	public int getNumSents(){
@@ -138,16 +174,16 @@ public class Document {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		String xmlPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18.release-fix\\11.xml";
-		String geniaPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18_genia\\11.xml.txt.genia";
-		String depPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18_depfix\\11.xml.parse";
+		String xmlPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18.release-fix\\23.xml";
+		String geniaPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18_genia\\23.xml.txt.genia";
+		String depPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18_depfix\\23.xml.parse";
 
 		Document doc = new Document(xmlPath, geniaPath, depPath);
 		System.out.println("-----------------");
 		System.out.println(doc.getText());
 		System.out.println("-----------------");
 		for(int i =0; i < doc.getSentences().size(); i++){
-			System.out.println("---------------------------------");
+			System.out.println("---------------------------------" + doc.getSentences().get(i).getNumTokens());
 			for(int j = 0; j < doc.getSentences().get(i).getNumTokens(); j++){
 				System.out.println(doc.getSentences().get(i).getTokens().get(j).getText());
 				System.out.println(doc.getSentences().get(i).getTokens().get(j).getStartOffset());
