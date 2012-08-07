@@ -1,5 +1,10 @@
 package wd.i2b2.utilities;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import cc.mallet.types.Instance;
+
 public class Tlink {
 	
 	String id;
@@ -8,10 +13,39 @@ public class Tlink {
 	String toID;
 	String toText;
 	String type;
-	
-	
+	Map<String, Object> features = new LinkedHashMap<String, Object>();
+	Instance instanceTlink;
+	Object from;
+	Object to;
 	
 	public Tlink(){}
+	
+	public Tlink(Event f, Event t){
+		this.from = f;
+		this.to = t;
+		this.setFromID(f.getId());
+		this.setFromText(f.getText());
+		this.setToID(t.getId());
+		this.setToText(t.getText());
+	}
+	
+	public Tlink(Timex3 f, Timex3 t){
+		this.from = f;
+		this.to = t;
+		this.setFromID(f.getId());
+		this.setFromText(f.getText());
+		this.setToID(t.getId());
+		this.setToText(t.getText());
+	}
+	
+	public Tlink(Event f, Timex3 t){
+		this.from = f;
+		this.to = t;
+		this.setFromID(f.getId());
+		this.setFromText(f.getText());
+		this.setToID(t.getId());
+		this.setToText(t.getText());
+	}
 	
 	public Tlink(String id, String fromID, String fromText, String toID,
 			String toText, String type) {
@@ -71,6 +105,42 @@ public class Tlink {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	
+
+	public Map<String, Object> getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(Map<String, Object> features) {
+		this.features = features;
+	}
+
+	
+	
+	public Instance getInstanceTlink() {
+		return instanceTlink;
+	}
+
+	public void setInstanceTlink(Instance instanceTlink) {
+		this.instanceTlink = instanceTlink;
+	}
+
+	public Object getFrom() {
+		return from;
+	}
+
+	public void setFrom(Object from) {
+		this.from = from;
+	}
+
+	public Object getTo() {
+		return to;
+	}
+
+	public void setTo(Object to) {
+		this.to = to;
 	}
 
 	/**

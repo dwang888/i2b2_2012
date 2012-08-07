@@ -80,6 +80,7 @@ public class GeniaTagReader {
 				tk.setId(id);
 				id++;
 				tk.setText(attributes.get(0));
+//				System.out.println(line);
 				tk.setPOS(attributes.get(2));
 				tk.setChunkBIO(attributes.get(3));
 				tk.setProteinBIO(attributes.get(4));				
@@ -96,8 +97,9 @@ public class GeniaTagReader {
 		// TODO Auto-generated method stub
 		String path = args[0];
 //		System.out.println(path);
-		GeniaTagReader gr = new GeniaTagReader();
-		gr.loadFile(path);
+		GeniaTagReader gr = new GeniaTagReader(path);
+		
+//		gr.loadFile(path);
 		for(int i = 0; i < gr.getSentences().size(); i++){
 //			System.out.println(gr.getSentences().get(i).getTokens().size());
 			for(int j = 0; j < gr.getSentences().get(i).getTokens().size(); j++){

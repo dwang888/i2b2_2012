@@ -1,5 +1,8 @@
 package wd.i2b2.utilities;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class Event {
 	
 	String id;
@@ -10,6 +13,7 @@ public class Event {
 	String polarity;
 	String type;
 	String sec_time_rel;
+	Map<String, Integer> features = new LinkedHashMap<String, Integer>();
 	
 	public Event(){}
 	

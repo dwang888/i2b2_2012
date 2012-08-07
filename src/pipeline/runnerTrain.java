@@ -7,9 +7,14 @@ package pipeline;
 
 import java.io.File;
 
-import wd.i2b2.utilities.Document;
+import cc.mallet.classify.Classifier;
+import cc.mallet.classify.ClassifierTrainer;
+import cc.mallet.classify.MaxEntTrainer;
 
-public class runerTrain {
+import wd.i2b2.utilities.Document;
+import wd.i2b2.utilities.Tlink;
+
+public class runnerTrain {
 
 	
 	public static void main(String[] args) throws Exception {
@@ -17,6 +22,9 @@ public class runerTrain {
 		System.out.println("Processing the folder:\t" + dirPath);
 		File dir=new File(dirPath);
 		String[] filenameList=dir.list();
+		ClassifierTrainer trainer = new MaxEntTrainer();
+		
+		
         for(int i = 0; i < filenameList.length; i++){
         	String xmlPath = dirPath + File.separator + filenameList[i];
         	if(xmlPath.endsWith("xml")){
@@ -32,9 +40,18 @@ public class runerTrain {
 //        				+ geniaPath);
         		try {
 					Document doc = new Document(xmlPath, geniaPath, depPath);
+					FeatureExtractor fe = new FeatureExtractor(doc);
+					System.out.println("training...");
+					Classifier classifier = trainer.train(doc.getInsTlink());
+//					for(int j = 0; j < doc.getDataSamplesTlink().size(); j++){
+//						System.out.println(doc.getDataSamplesTlink().get(j).getFeatures().toString());
+//						System.out.println(doc.getDataSamplesTlink());
+//					}
+					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					System.out.println("XMLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
+//					System.out.println("XMLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
+//	        		System.out.println(xmlPath);
 					e.printStackTrace();
 				}
         	}

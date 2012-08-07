@@ -1,5 +1,8 @@
 package wd.i2b2.utilities;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class Timex3 {
 	
 	String id;
@@ -9,6 +12,7 @@ public class Timex3 {
 	String type;
 	String val;
 	String mod;
+	Map<String, Integer> features = new LinkedHashMap<String, Integer>();
 	
 	public Timex3() {
 	}

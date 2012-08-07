@@ -26,14 +26,14 @@ import cc.mallet.pipe.iterator.FileIterator;
 import cc.mallet.types.Instance;
 import cc.mallet.types.InstanceList;
 
-public class MalletTest {
+public class MalletHelper {
 //	List<Instance> instances = new ArrayList<Instance>();
 	InstanceList instances;
 	InstanceList insTrain;
 	InstanceList insTest;
 	Pipe finalPipe;
 	
-	public MalletTest(){
+	public MalletHelper(){
 		this.buildPipe();
 		this.instances = new InstanceList(finalPipe);
 		this.insTrain = new InstanceList(finalPipe);
@@ -115,7 +115,6 @@ public class MalletTest {
 		}
 		
 		System.out.println(this.insTrain.size());
-		
 		ClassifierTrainer trainer = new MaxEntTrainer();
 		Classifier classifier = trainer.train(insTrain);
 //		System.out.println(classifier.getF1(insTest, 1));
@@ -132,7 +131,7 @@ public class MalletTest {
 		// TODO Auto-generated method stub
 		String trainPath = args[0];
 		String testPath = args[1];
-		MalletTest mt = new MalletTest();
+		MalletHelper mt = new MalletHelper();
 //		mt.token2Instance("f1 f2 f3");
 		List<DataSample> trainList = mt.createSampleList(trainPath);
 		List<DataSample> testList = mt.createSampleList(testPath);

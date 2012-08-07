@@ -2,7 +2,19 @@ package wd.i2b2.utilities;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import cc.mallet.pipe.CharSequence2TokenSequence;
+import cc.mallet.pipe.FeatureSequence2FeatureVector;
+import cc.mallet.pipe.Pipe;
+import cc.mallet.pipe.SerialPipes;
+import cc.mallet.pipe.Target2Label;
+import cc.mallet.pipe.TokenSequence2FeatureSequence;
+import cc.mallet.types.Instance;
+import cc.mallet.types.InstanceList;
 
 import wd.i2b2.dataIO.DepReader;
 import wd.i2b2.dataIO.GeniaTagReader;
@@ -16,7 +28,10 @@ public class Document {
 	List<Timex3> timex3s;
 	List<Tlink> tlinks;
 	String text;
-	
+	Map<String, Integer> features = new LinkedHashMap<String, Integer>();
+	List<Tlink> dataSamplesTlink = new ArrayList<Tlink>();
+	InstanceList insTlink;
+	Pipe finalPipe;
 	
 	public Document(String xmlPath, String geniaPath, String depPath) throws Exception{
 		I2b2XmlReader xmlReader = new I2b2XmlReader(xmlPath);
@@ -29,6 +44,9 @@ public class Document {
 		this.text = xmlReader.getText();
 		this.sentences = geniaReader.getSentences();		
 		this.assignTokenOffset();
+		
+		this.buildPipe();
+		this.insTlink = new InstanceList(finalPipe);
 	}
 	
 //	public Document(String xmlPath, String geniaPath){
@@ -37,6 +55,26 @@ public class Document {
 	
 	public Document(){
 		
+	}
+	
+	
+	public Pipe buildPipe(){
+		ArrayList pipeList = new ArrayList();		
+		pipeList.add(new Target2Label());
+//		pipeList.add(new SaveDataInSource());//a dummy tlink to create negative training sample
+		Pattern tokenPattern = Pattern.compile("[\\w=_]+");
+		pipeList.add(new CharSequence2TokenSequence(tokenPattern));
+		pipeList.add(new TokenSequence2FeatureSequence());        
+		pipeList.add(new FeatureSequence2FeatureVector());
+		Pipe finalPipe = new SerialPipes(pipeList);
+		this.finalPipe = finalPipe;
+		return finalPipe;
+	}
+	
+	public Instance token2Instance(String feature, String label, String name, String src, InstanceList ins){
+		Instance in = new Instance(feature, label, name, src);
+		ins.addThruPipe(in);
+		return ins.get(ins.size() - 1);
 	}
 	
 	/**
@@ -56,7 +94,7 @@ public class Document {
 				}
 //				System.out.println(startOffset + "--" + i + "--" + this.getSentences().get(sentID).getTokens().get(tkID).getText());
 				startOffset = i;
-				while(startOffset < this.getText().length()){
+				while(startOffset + 1 < this.getText().length()){
 					startOffset++;
 					if(this.getText().charAt(startOffset) != ' ' && this.getText().charAt(startOffset) != '\n'){
 //						if(this.getText().charAt(startOffset) == '\n'){
@@ -168,15 +206,78 @@ public class Document {
 	public void setText(String text) {
 		this.text = text;
 	}
+	
+	public Tlink findTlink(String fromID, String toID){
+		for(Tlink t : this.getTlinks()){
+			if(t.getFromID().equalsIgnoreCase(fromID) 
+					&& t.getToID().equalsIgnoreCase(toID)){
+				return t;
+			}
+		}
+		return null;
+	}
+	
+	public Event findEvent(String id){
+		for(Event e : this.getEvents()){
+			if(id.equalsIgnoreCase(e.getId())){
+				return e;
+			}
+		}
+		return null;
+	}
+	
+	public Timex3 findTimex3(String id){
+		for(Timex3 t : this.getTimex3s()){
+			if(id.equalsIgnoreCase(t.getId())){
+				return t;
+			}
+		}
+		return null;
+	}
+	
+
+	public Map<String, Integer> getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(Map<String, Integer> features) {
+		this.features = features;
+	}
+
+	public List<Tlink> getDataSamplesTlink() {
+		return dataSamplesTlink;
+	}
+
+	public void setDataSamplesTlink(List<Tlink> dataSamplesTlink) {
+		this.dataSamplesTlink = dataSamplesTlink;
+	}
+	
+	
+
+	public InstanceList getInsTlink() {
+		return insTlink;
+	}
+
+	public void setInsTlink(InstanceList insTlink) {
+		this.insTlink = insTlink;
+	}
+
+	public Pipe getFinalPipe() {
+		return finalPipe;
+	}
+
+	public void setFinalPipe(Pipe finalPipe) {
+		this.finalPipe = finalPipe;
+	}
 
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		String xmlPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18.release-fix\\23.xml";
-		String geniaPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18_genia\\23.xml.txt.genia";
-		String depPath = "D:\\projects\\i2b2_2012\\data\\2012-06-18_depfix\\23.xml.parse";
+		String xmlPath = "D:\\projects\\i2b2_2012\\data\\2012-07-06.release-fix\\8.xml";
+		String geniaPath = "D:\\projects\\i2b2_2012\\data\\2012-07-06_genia\\8.xml.txt.genia";
+		String depPath = "D:\\projects\\i2b2_2012\\data\\2012-07-06_depfix\\8.xml.parse";
 
 		Document doc = new Document(xmlPath, geniaPath, depPath);
 		System.out.println("-----------------");
