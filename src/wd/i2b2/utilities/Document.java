@@ -23,6 +23,7 @@ import wd.i2b2.dataIO.I2b2XmlReader;
 
 public class Document {
 
+	String xmlPath;
 	List<Sentence> sentences;
 	List<Event> events;
 	List<Timex3> timex3s;
@@ -31,6 +32,7 @@ public class Document {
 	Map<String, Integer> features = new LinkedHashMap<String, Integer>();
 	List<Tlink> dataSamplesTlink = new ArrayList<Tlink>();
 	InstanceList insTlink;
+	List<Instance> origInstances = new ArrayList<Instance>();
 	Pipe finalPipe;
 	
 	public Document(String xmlPath, String geniaPath, String depPath) throws Exception{
@@ -38,6 +40,7 @@ public class Document {
 		GeniaTagReader geniaReader = new GeniaTagReader(geniaPath);
 		DepReader depReader = new DepReader(depPath);
 		
+		this.xmlPath = xmlPath;
 		this.events = xmlReader.getEvents();
 		this.timex3s = xmlReader.getTimex3s();
 		this.tlinks = xmlReader.getTlinks();
@@ -268,6 +271,22 @@ public class Document {
 
 	public void setFinalPipe(Pipe finalPipe) {
 		this.finalPipe = finalPipe;
+	}
+
+	public String getXmlPath() {
+		return xmlPath;
+	}
+
+	public void setXmlPath(String xmlPath) {
+		this.xmlPath = xmlPath;
+	}
+
+	public List<Instance> getOrigInstances() {
+		return origInstances;
+	}
+
+	public void setOrigInstances(List<Instance> origInstances) {
+		this.origInstances = origInstances;
 	}
 
 	/**

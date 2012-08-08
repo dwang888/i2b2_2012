@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import cc.mallet.types.Instance;
+
 import wd.i2b2.utilities.Document;
 import wd.i2b2.utilities.Event;
 import wd.i2b2.utilities.Tlink;
@@ -54,6 +56,9 @@ public class FeatureExtractor {
 			}
 			
 			d.token2Instance(feature, t.getType(), "Anonymous", "unknow", d.getInsTlink());
+			Instance origInstance = new Instance(feature, t.getType(), "Anonymous", "unknow");
+//			System.out.println(origInstance);
+			d.getOrigInstances().add(origInstance);
 		}
 		
 	}
@@ -75,6 +80,7 @@ public class FeatureExtractor {
 					tlinkTmp.getFeatures().put("fromText", tlinkTmp.getFromText());
 					tlinkTmp.getFeatures().put("toText", tlinkTmp.getToText());
 				}else{
+					if(this.getFeature_distance(d.getEvents().get(i), d.getEvents().get(j)) > 1000)continue;
 					tlinkTmp = new Tlink(d.getEvents().get(i), d.getEvents().get(j));//a dummy tlink to create negative training sample
 					tlinkTmp.setType("NONE");
 //					tlinkType = "NONE";
