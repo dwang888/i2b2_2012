@@ -7,6 +7,7 @@ public class Token {
 
 	String token;
 	String stem;
+	String text;
 	int startOffset;
 	int endOffset;
 	int length;
