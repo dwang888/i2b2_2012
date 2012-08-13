@@ -58,6 +58,9 @@ public class Tlink {
 		this.type = type;
 	}
 
+	public Tlink clone(){
+		return new Tlink(id, fromID, fromText, toID, toText, type);
+	}
 
 	public String getId() {
 		return id;

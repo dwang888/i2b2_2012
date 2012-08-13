@@ -20,8 +20,22 @@ import wd.i2b2.dataIO.DepReader;
 import wd.i2b2.dataIO.GeniaTagReader;
 import wd.i2b2.dataIO.I2b2XmlReader;
 
+import java.io.File;
+import java.io.IOException;
 
-public class Document {
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+public class DocumentI2b2 {
 
 	String xmlPath;
 	List<Sentence> sentences;
@@ -35,19 +49,23 @@ public class Document {
 	List<Instance> origInstances = new ArrayList<Instance>();
 	Pipe finalPipe;
 	
-	public Document(String xmlPath, String geniaPath, String depPath) throws Exception{
+	public DocumentI2b2(String xmlPath, String geniaPath, String depPath) throws Exception{
 		I2b2XmlReader xmlReader = new I2b2XmlReader(xmlPath);
-		GeniaTagReader geniaReader = new GeniaTagReader(geniaPath);
-		DepReader depReader = new DepReader(depPath);
+		if(geniaPath!= null && !geniaPath.equalsIgnoreCase("")){
+			GeniaTagReader geniaReader = new GeniaTagReader(geniaPath);
+			this.sentences = geniaReader.getSentences();
+		}
+		if(depPath!= null && !depPath.equalsIgnoreCase("")){
+			DepReader depReader = new DepReader(depPath);
+		}
+		
 		
 		this.xmlPath = xmlPath;
 		this.events = xmlReader.getEvents();
 		this.timex3s = xmlReader.getTimex3s();
 		this.tlinks = xmlReader.getTlinks();
-		this.text = xmlReader.getText();
-		this.sentences = geniaReader.getSentences();		
-		this.assignTokenOffset();
-		
+		this.text = xmlReader.getText();		
+		this.assignTokenOffset();		
 		this.buildPipe();
 		this.insTlink = new InstanceList(finalPipe);
 	}
@@ -56,7 +74,7 @@ public class Document {
 //		this.Document(xmlPath, geniaPath, "");
 //	}
 	
-	public Document(){
+	public DocumentI2b2(){
 		
 	}
 	
@@ -131,8 +149,9 @@ public class Document {
 			
 			
 			
-			if(startOffset >= this.getText().length() 
-					|| sentID >= this.getSentences().size()){
+//			if(startOffset >= this.getText().length() 
+//					|| sentID >= this.getSentences().size()){
+			if(startOffset >= this.getText().length() || sentID >= this.getSentenceNum()){
 //				System.out.println("startOffset:\t" + startOffset);
 //				System.out.println("sentID:\t" + sentID);
 //				System.out.println("this.getSentences().size():\t" + this.getSentences().size());
@@ -141,11 +160,12 @@ public class Document {
 								
 				break;
 			}
-			if(tkID >= this.getSentences().get(sentID).getNumTokens()){
-				//deal with some continuous space
-				tkID = 0;
-				
-			}
+//			System.out.println(this.getSentences().size() + " " + sentID);
+//			
+//			if(tkID >= this.getSentences().get(sentID).getNumTokens()){
+//				//deal with some continuous space
+//				tkID = 0;				
+//			}
 		}
 //		System.out.println("text length:\t" + this.getText().length());
 	}
@@ -288,6 +308,50 @@ public class Document {
 	public void setOrigInstances(List<Instance> origInstances) {
 		this.origInstances = origInstances;
 	}
+	
+	public int getSentenceNum(){
+		return this.getText().split("\n").length;
+	}
+	
+	/**
+	 * read in a xml file, append the tlinks to TAGS
+	 * */
+	public void output2XML(String inputPath, String outputPath) throws Exception, IOException{
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		
+		//read and edit xml
+		File inputFile = new File(inputPath);
+		Document document = builder.parse(inputFile);
+		System.out.println("manipulating xml file:\t" + inputPath);
+		
+		Node tags = document.getElementsByTagName("TAGS").item(0);
+		
+		for(Tlink t : this.getDataSamplesTlink()){
+			if(!t.getType().equalsIgnoreCase("NONE")){
+				//a link by classifier
+				Element newTlink = document.createElement("TLINK");
+				newTlink.setAttribute("id", t.getId());
+				newTlink.setAttribute("fromID", t.getFromID());
+				newTlink.setAttribute("fromText", t.getFromText());
+				newTlink.setAttribute("toID", t.getToID());
+				newTlink.setAttribute("toText", t.getToText());
+				newTlink.setAttribute("type", t.getType());
+				tags.appendChild(newTlink);				
+			}
+		}		
+//		System.out.println(document.getElementsByTagName("TLINK").getLength());
+		
+		//transformer
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		DOMSource source = new DOMSource(document);
+		StreamResult result = new StreamResult(new File(outputPath));
+		transformer.transform(source, result);
+		System.out.println("reading, transforming and writing xml done!");
+
+}
 
 	/**
 	 * @param args
@@ -298,7 +362,11 @@ public class Document {
 		String geniaPath = "D:\\projects\\i2b2_2012\\data\\2012-07-06_genia\\8.xml.txt.genia";
 		String depPath = "D:\\projects\\i2b2_2012\\data\\2012-07-06_depfix\\8.xml.parse";
 
-		Document doc = new Document(xmlPath, geniaPath, depPath);
+		DocumentI2b2 d = new DocumentI2b2();
+		d.output2XML(args[0], args[1]);
+		System.exit(0);
+		
+		DocumentI2b2 doc = new DocumentI2b2(xmlPath, geniaPath, depPath);
 		System.out.println("-----------------");
 		System.out.println(doc.getText());
 		System.out.println("-----------------");
